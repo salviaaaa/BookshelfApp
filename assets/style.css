@@ -1,5 +1,21 @@
 body {
     background-color: #f8f9fa;
+    font-family: 'Poppins', sans-serif;
+}
+
+header, footer {
+    font-family: 'Pacifico', cursive;
+}
+
+.pacifico-font {
+    font-family: 'Pacifico', cursive;
+}
+
+:root {
+    --primary-color: #FFDAB9;
+    --reading-color: #FFB996;
+    --completed-color: #FFB996;
+    --button-hover: #FF8E6E;
 }
 
 .book-item {
@@ -8,15 +24,28 @@ body {
     padding: 1rem;
     margin-bottom: 1rem;
     background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    text-align: center;
 }
 
-.book-item h3 {
-    margin: 0;
-    font-size: 1.25rem;
-    color: #0d6efd;
+.book-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1.5rem;
+    display: block;
 }
 
-.book-item p {
+.book-details {
+    margin-bottom: 1rem;
+    padding: 0 1rem;
+}
+
+.book-details h3 {
+    color: #3c2412;
+    margin-bottom: 1rem;
+}
+
+.book-details p {
     margin: 0.5rem 0;
     color: #6c757d;
 }
@@ -24,15 +53,19 @@ body {
 .action-buttons {
     display: flex;
     gap: 0.5rem;
+    justify-content: center;
 }
 
 .book-list {
     min-height: 200px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
 }
 
 /* Change primary color */
 .bg-primary {
-    background-color: #3c2412 !important; /* Change primary color */
+    background-color: #3c2412 !important;
 }
 
 /* Tab styling */
@@ -66,4 +99,111 @@ body {
 .input-group .form-control:focus {
     border-color: #dee2e6;
     box-shadow: none;
+}
+
+/* Nav Pills styling */
+.nav-pills .nav-link {
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+.nav-pills .nav-link.active {
+    color: white;
+    background-color: var(--reading-color);
+    border-color: var(--reading-color);
+}
+
+#completed-tab.active {
+    background-color: var(--completed-color);
+    border-color: var(--completed-color);
+}
+
+/* Button styling */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #000;
+}
+
+.btn-primary:hover {
+    background-color: var(--button-hover);
+    border-color: var(--button-hover);
+    color: #000;
+}
+
+/* Modal styling */
+.modal-content {
+    border-radius: 1rem;
+}
+
+#deleteConfirmModal .bi-exclamation-circle {
+    color: #ffc107;
+}
+
+/* Make the Add Book section sticky */
+@media (min-width: 768px) {
+    .sticky-top {
+        top: 1rem;
+        z-index: 1020;
+    }
+}
+
+/* Delete modal styling */
+#deleteConfirmModal .modal-content {
+    border: none;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+#deleteConfirmModal .btn-success {
+    background-color: var(--button-hover);
+    border-color: var(--button-hover);
+}
+
+#deleteConfirmModal .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.bg-brown {
+    background-color: #3c2412 !important;
+    color: white !important;
+}
+
+/* Tooltip styling */
+.tooltip-inner {
+    max-width: 300px;
+    text-align: left;
+}
+
+.genre-checkboxes {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.genre-checkboxes .form-check {
+    margin-bottom: 0.5rem;
+}
+
+/* Toast styling */
+.toast-container {
+    z-index: 1060;
+}
+
+.toast {
+    opacity: 0.9;
+}
+
+.toast:hover {
+    opacity: 1;
+}
+
+.toast.bg-warning,
+.toast.bg-info {
+    color: #000 !important;
+}
+
+.toast.bg-warning .btn-close,
+.toast.bg-info .btn-close {
+    filter: none;
 } 

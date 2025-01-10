@@ -3,7 +3,22 @@ const RENDER_EVENT = 'render-book';
 const SAVED_EVENT = 'saved-book';
 const STORAGE_KEY = 'BOOKSHELF_APPS';
 
+let bookToDelete = null;
+let bookToEdit = null;
+let deleteModal = null;
+let editModal = null;
+let successToast = null;
+
 document.addEventListener('DOMContentLoaded', function () {
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Initialize toast
+    successToast = new bootstrap.Toast(document.getElementById('successToast'));
+
     const submitForm = document.getElementById('inputBook');
     submitForm.addEventListener('submit', function (event) {
         event.preventDefault();
@@ -25,6 +40,36 @@ document.addEventListener('DOMContentLoaded', function () {
     if (isStorageExist()) {
         loadDataFromStorage();
     }
+
+    // Initialize Bootstrap modals
+    deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    editModal = new bootstrap.Modal(document.getElementById('editBookModal'));
+
+    // Setup delete confirmation
+    document.getElementById('confirmDelete').addEventListener('click', function() {
+        if (bookToDelete) {
+            removeBook(bookToDelete);
+            bookToDelete = null;
+            deleteModal.hide();
+        }
+    });
+
+    // Setup edit form
+    document.getElementById('editBookForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        if (bookToEdit) {
+            updateBook(bookToEdit);
+            bookToEdit = null;
+            editModal.hide();
+        }
+    });
+
+    // Handle cancel buttons
+    document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(button => {
+        button.addEventListener('click', function() {
+            showNotification('Operation cancelled', 'warning');
+        });
+    });
 });
 
 function addBook() {
@@ -42,6 +87,12 @@ function addBook() {
     
     // Reset form
     document.getElementById('inputBook').reset();
+    resetGenreCheckboxes();
+    if (isComplete) {
+        showNotification('Book added to Completed List!', 'success');
+    } else {
+        showNotification('Book added to Reading List!', 'info');
+    }
 }
 
 function generateId() {
@@ -49,11 +100,17 @@ function generateId() {
 }
 
 function generateBookObject(id, title, author, year, isComplete) {
+    const selectedGenres = [];
+    document.querySelectorAll('input[name="genre"]:checked').forEach(checkbox => {
+        selectedGenres.push(checkbox.value);
+    });
+    const genre = selectedGenres.join(', ');
     return {
         id,
         title,
         author,
         year,
+        genre,
         isComplete
     }
 }
@@ -76,10 +133,18 @@ document.addEventListener(RENDER_EVENT, function () {
 });
 
 function makeBookElement(bookObject) {
-    const {id, title, author, year, isComplete} = bookObject;
+    const {id, title, author, year, genre, isComplete} = bookObject;
 
     const bookItem = document.createElement('div');
     bookItem.classList.add('book-item');
+    
+    const bookIcon = document.createElement('img');
+    bookIcon.classList.add('book-icon');
+    bookIcon.src = isComplete ? 'assets/img/completed.png' : 'assets/img/reading.png';
+    bookIcon.alt = isComplete ? 'Completed' : 'Reading';
+
+    const bookDetails = document.createElement('div');
+    bookDetails.classList.add('book-details');
     
     const bookTitle = document.createElement('h3');
     bookTitle.innerText = title;
@@ -88,7 +153,12 @@ function makeBookElement(bookObject) {
     bookAuthor.innerText = `Author: ${author}`;
     
     const bookYear = document.createElement('p');
-    bookYear.innerText = `Year: ${year}`;
+    bookYear.innerText = `Published Book: ${year}`;
+    
+    const bookGenre = document.createElement('p');
+    bookGenre.innerText = `Genre: ${genre}`;
+
+    bookDetails.append(bookTitle, bookAuthor, bookYear, bookGenre);
     
     const actionButtons = document.createElement('div');
     actionButtons.classList.add('action-buttons');
@@ -120,14 +190,21 @@ function makeBookElement(bookObject) {
     deleteButton.innerHTML = '<i class="bi bi-trash"></i> Delete';
 
     deleteButton.addEventListener('click', function() {
-        if(confirm('Are you sure you want to delete this book?')) {
-            removeBook(id);
-        }
+        bookToDelete = id;
+        deleteModal.show();
     });
 
+    const editButton = document.createElement('button');
+    editButton.classList.add('btn', 'btn-info', 'btn-sm');
+    editButton.innerHTML = '<i class="bi bi-pencil"></i> Edit';
+    editButton.addEventListener('click', function() {
+        openEditModal(id);
+    });
+
+    actionButtons.append(editButton);
     actionButtons.append(deleteButton);
     
-    bookItem.append(bookTitle, bookAuthor, bookYear, actionButtons);
+    bookItem.append(bookIcon, bookDetails, actionButtons);
     return bookItem;
 }
 
@@ -138,6 +215,7 @@ function addBookToCompleted(bookId) {
     bookTarget.isComplete = true;
     document.dispatchEvent(new Event(RENDER_EVENT));
     saveData();
+    showNotification('Book marked as finished reading!', 'success');
 }
 
 function undoBookFromCompleted(bookId) {
@@ -147,6 +225,7 @@ function undoBookFromCompleted(bookId) {
     bookTarget.isComplete = false;
     document.dispatchEvent(new Event(RENDER_EVENT));
     saveData();
+    showNotification('Book moved back to reading list!', 'info');
 }
 
 function removeBook(bookId) {
@@ -156,6 +235,7 @@ function removeBook(bookId) {
     books.splice(bookTarget, 1);
     document.dispatchEvent(new Event(RENDER_EVENT));
     saveData();
+    showNotification('Book has been deleted!', 'danger');
 }
 
 function findBook(bookId) {
@@ -220,4 +300,72 @@ function searchBooks(query, isComplete) {
         const bookElement = makeBookElement(book);
         bookshelfList.append(bookElement);
     }
+}
+
+function updateBook(bookId) {
+    const bookTarget = findBook(bookId);
+    if (bookTarget == null) return;
+
+    bookTarget.title = document.getElementById('editBookTitle').value;
+    bookTarget.author = document.getElementById('editBookAuthor').value;
+    bookTarget.year = parseInt(document.getElementById('editBookYear').value);
+    bookTarget.isComplete = document.getElementById('editBookIsComplete').checked;
+
+    document.dispatchEvent(new Event(RENDER_EVENT));
+    saveData();
+    showNotification('Book details have been updated!', 'success');
+}
+
+function openEditModal(bookId) {
+    const book = findBook(bookId);
+    if (book == null) return;
+
+    bookToEdit = bookId;
+    document.getElementById('editBookId').value = book.id;
+    document.getElementById('editBookTitle').value = book.title;
+    document.getElementById('editBookAuthor').value = book.author;
+    document.getElementById('editBookYear').value = book.year;
+    document.getElementById('editBookIsComplete').checked = book.isComplete;
+
+    // Reset and set genre checkboxes
+    resetGenreCheckboxes();
+    const genres = book.genre.split(', ');
+    genres.forEach(genre => {
+        const checkbox = document.querySelector(`input[name="genre"][value="${genre}"]`);
+        if (checkbox) checkbox.checked = true;
+    });
+
+    editModal.show();
+}
+
+function resetGenreCheckboxes() {
+    document.querySelectorAll('input[name="genre"]').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+}
+
+function showNotification(message, type = 'success') {
+    const toast = document.getElementById('successToast');
+    
+    // Reset classes
+    toast.classList.remove('bg-success', 'bg-info', 'bg-warning', 'bg-danger');
+    
+    // Add appropriate class based on type
+    switch(type) {
+        case 'success':
+            toast.classList.add('bg-success');
+            break;
+        case 'info':
+            toast.classList.add('bg-info');
+            break;
+        case 'warning':
+            toast.classList.add('bg-warning');
+            break;
+        case 'danger':
+            toast.classList.add('bg-danger');
+            break;
+    }
+
+    document.getElementById('successToastMessage').textContent = message;
+    successToast.show();
 } 
