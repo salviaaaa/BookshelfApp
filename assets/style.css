@@ -1,0 +1,69 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.book-item {
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: white;
+}
+
+.book-item h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #0d6efd;
+}
+
+.book-item p {
+    margin: 0.5rem 0;
+    color: #6c757d;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.book-list {
+    min-height: 200px;
+}
+
+/* Change primary color */
+.bg-primary {
+    background-color: #3c2412 !important; /* Change primary color */
+}
+
+/* Tab styling */
+.nav-tabs .nav-link {
+    color: #6c757d;
+    border: none;
+    border-bottom: 2px solid transparent;
+}
+
+.nav-tabs .nav-link.active {
+    color: #3c2412;
+    border: none;
+    border-bottom: 2px solid #3c2412;
+}
+
+.nav-tabs .nav-link:hover {
+    border: none;
+    border-bottom: 2px solid #3c2412;
+}
+
+/* Search bar styling */
+.input-group-text {
+    background-color: white;
+    border-right: none;
+}
+
+.input-group .form-control {
+    border-left: none;
+}
+
+.input-group .form-control:focus {
+    border-color: #dee2e6;
+    box-shadow: none;
+} 
