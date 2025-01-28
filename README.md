@@ -31,12 +31,12 @@ In this project, you will master the Browser Object Model (BOM) and Document Obj
 
 1. Clone this repository to your local computer: 
 ```bash
-git clone https://github.com/yourusername/your-repo-name.git
+git clone https://github.com/salviaaaa/BookshelfApp.git
 ```
 
 2. Open the project folder:
 ```bash
-cd your-repo-name
+cd BookshelfApp
 ```
 
 3. Open `index.html` in your browser to view the website. 🌍
@@ -60,6 +60,8 @@ You can modify the following files as per your needs:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## Contact 📫
 
+Your Name - [@yourtwitter](https://twitter.com/yourtwitter) - email@example.com
 
 Project Link: [https://salviaaaa.github.io/BookshelfApp/](https://salviaaaa.github.io/BookshelfApp/)
